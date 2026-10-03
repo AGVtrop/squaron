@@ -1,10 +1,47 @@
 <body>
-  <h1>it works!</h1>
   <style>
     body { background: black; color: white; font-family: sans-serif; }
   </style>
+  <canvas id=canvas height=500 width=500 style="border: 2px solid white">
+
+  </canvas>
   <script>
-    const title = document.querySelector("h1");
-    title.onclick = () => (title.textContent = "you clicked it");
+    function playingFieldInit(w, h) {
+        var field = [];
+        for (var y = 0; y < h; y++) {
+            field[y] = [];
+            for (var x = 0; x < w; x++) {
+                field[y][x] = 0;
+            }
+        }
+        return field;
+    }
+    function drawField(canvas, field, squareSize) {
+        for (var y = 0; y < field.length; y++) {
+            for (var x = 0; x < field[y].length; x++) {
+                canvas.fillStyle = "rgb(200 0 0 / 30%)";
+                canvas.fillRect(x * squareSize, y * squareSize, squareSize - 1, squareSize - 1);
+            }
+        }
+    }
+    function newPlayer(x, y, velocity) {
+        const p = {
+            x: x,
+            y: y,
+            v: velocity,
+        };
+        return p;
+    }
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    
+    const canvasSize = 500;
+    const squareSize = 25;
+    ctx.fillStyle = "rgb(0 0 0)";
+    ctx.fillRect(0, 0, 500, 500);
+    var field = playingFieldInit(canvasSize / squareSize , canvasSize / squareSize);
+    drawField(ctx, field, squareSize);
+        //var players[0] = newPlayer(10, 10, 1);
+    //console.log(players[0]);
+
   </script>
-</body>
