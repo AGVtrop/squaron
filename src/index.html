@@ -29,19 +29,95 @@
             x: x,
             y: y,
             v: velocity,
+            d: 0,
         };
         return p;
+    }
+    function movePlayer(p) {
+        switch(p.d) { // 90 direction turn, clockwise
+            case 0:
+                p.y -= 1;
+                break;
+            case 1:
+                p.x += 1;
+                break;
+            case 2:
+                p.y += 1;
+                break;
+            case 3:
+                p.x -= 1;
+                break;
+        }
+    }
+    function drawPlayer(canvas, p, squareSize) {
+        canvas.fillStyle = "rgb(0 200 0)";
+        canvas.fillRect(p.x * squareSize, p.y * squareSize, squareSize, squareSize);
     }
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
     
     const canvasSize = 500;
-    const squareSize = 25;
+    const squareSize = 10;
     ctx.fillStyle = "rgb(0 0 0)";
     ctx.fillRect(0, 0, 500, 500);
-    var field = playingFieldInit(canvasSize / squareSize , canvasSize / squareSize);
+    let field = playingFieldInit(canvasSize / squareSize , canvasSize / squareSize);
     drawField(ctx, field, squareSize);
-        //var players[0] = newPlayer(10, 10, 1);
+    let player = newPlayer(10, 10, 0.1);
+    //var players[0] = newPlayer(10, 10, 1);
     //console.log(players[0]);
+
+    document.addEventListener("keydown", function(event) {
+        switch(event.key) {
+            case "ArrowUp":
+            case "w":
+            case "W":
+                player.d = 0;
+                break;
+            case "ArrowRight":
+            case "d":
+            case "D":
+                player.d = 1;
+                break;
+            case "ArrowDown":
+            case "s":
+            case "S":
+                player.d = 2;
+                break;
+            case "ArrowLeft":
+            case "a":
+            case "A":
+                player.d = 3;
+                break;
+        }
+    });
+
+    let startTime;
+    let time;
+    function main(callTime) {
+        startTime = startTime || callTime;
+        
+
+        time = (callTime - startTime) / 1000;
+        if (time > player.v) {
+            
+            movePlayer(player);
+            drawPlayer(ctx, player, squareSize);
+            console.log(player.x, player.y, callTime - startTime);
+            startTime = callTime;
+        }
+        /*
+        if (((callTime - startTime) / 1000) % 1 > 1) {
+            movePlayer(player);
+            drawPlayer(ctx, player, squareSize);
+            console.log(player.x, player.y);
+            time = ((callTime - startTime) / 1000) % 1;
+            console.log(time);
+        } else time = ((callTime - startTime) / 1000);
+        */
+
+        requestAnimationFrame(main);
+    };
+
+    requestAnimationFrame(main);
 
   </script>
