@@ -27,7 +27,7 @@ body { background: black; color: white; font-family: sans-serif; }
                 }
             }
         }
-        function newPlayer(x, y, velocity, tailLen) {
+        function newPlayer(x, y, velocity, tailLen, controls) {
             const tail = [];
             for (var i = 0; i < tailLen; i++) {
                 tail[i] = {x: x, y: y};
@@ -38,6 +38,7 @@ body { background: black; color: white; font-family: sans-serif; }
                 v: velocity,
                 d: 0,
                 t: tail,
+                c: controls,
             };
             return p;
         }
@@ -59,7 +60,7 @@ body { background: black; color: white; font-family: sans-serif; }
             p.t.push(p.t.shift()); //move last tail square to first
             p.t[0].x = p.x;
             p.t[0].y = p.y;
-            
+
         }
         function checkMove(p, fruits) {
             for (var i = 0; i < fruits.length; i++) {
@@ -89,32 +90,55 @@ body { background: black; color: white; font-family: sans-serif; }
         const squareSize = 10;
         const squareFieldSize = canvasSize / squareSize;
         let field = playingFieldInit(squareFieldSize , squareFieldSize);
-        let player = newPlayer(10, 10, 0.1, 10);
+        let players = [];
+        players.push(newPlayer(10, 10, 0.1, 10, ["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"]));
+        players.push(newPlayer(10, 10, 0.1, 10, ["w", "d", "s", "a"]));
+        /*
+        for (var i = 0; i < 3; i++) {
+            players.push(newPlayer(i*10, 10, 0.1, 10));
+        }
+        */
+        //let player = newPlayer(10, 10, 0.1, 10);
+        let opponent = newPlayer(30, 30, 0.1, 10);
         let fruits = [];
         newFruit(fruits, squareFieldSize);
 
         document.addEventListener("keydown", function(event) {
-            switch(event.key) {
-                case "ArrowUp":
-                case "w":
-                case "W":
-                    player.d = 0;
-                    break;
-                case "ArrowRight":
-                case "d":
-                case "D":
-                    player.d = 1;
-                    break;
-                case "ArrowDown":
-                case "s":
-                case "S":
-                    player.d = 2;
-                    break;
-                case "ArrowLeft":
-                case "a":
-                case "A":
-                    player.d = 3;
-                    break;
+            
+            for (var i = 0; i < players.length; i++) {
+                var player = players[i];
+
+                console.log("controls ", player.c.length);
+                for (var j = 0; j < player.c.length; j++) {
+                    if (event.key == player.c[j]) {
+                        player.d = j;
+                    }
+                }
+                /*
+                switch(event.key) {
+                    case "ArrowUp":
+                    case "w":
+                    case "W":
+                        player.d = 0;
+                        break;
+                    case "ArrowRight":
+                    case "d":
+                    case "D":
+                        player.d = 1;
+                        break;
+                    case "ArrowDown":
+                    case "s":
+                    case "S":
+                        player.d = 2;
+                        break;
+                    case "ArrowLeft":
+                    case "a":
+                    case "A":
+                        player.d = 3;
+                        break;
+                }
+                console.log(player.d);
+            */
             }
         });
         function clear(canvas, field, squareSize) {
@@ -122,14 +146,16 @@ body { background: black; color: white; font-family: sans-serif; }
             canvas.fillStyle = "rgb(0 0 0)";
             canvas.fillRect(0, 0, 500, 500);
             drawField(canvas, field, squareSize);
-            drawPlayer(ctx, player, squareSize);
+            for (var i = 0; i < players.length; i++) {
+                drawPlayer(ctx, players[i], squareSize);
+            }
             drawFruit(canvas, fruits, squareSize);
         }
         function drawFruit(canvas, fruit, squareSize) {
             for (var i = 0; i < fruit.length; i++) {
                 canvas.fillStyle = "rgb(100 0 100)";
                 canvas.fillRect(fruit[i].x * squareSize, fruit[i].y * squareSize, squareSize, squareSize);
-    
+
             }
         }
 
@@ -141,18 +167,22 @@ body { background: black; color: white; font-family: sans-serif; }
             clear(ctx, field, squareSize);
 
             time = (callTime - startTime) / 1000;
-            if (time > player.v) {
 
-                startTime = callTime;
-                newFruitTimer += 1;
-                checkMove(player, fruits);
-                movePlayer(player);
-                if (newFruitTimer >= 10) {
-                    newFruit(fruits, squareFieldSize);
-                    newFruitTimer = 0;
+            for (var i = 0; i < players.length; i++) {
+                var player = players[i];
+                if (time > player.v) {
+
+                    startTime = callTime;
+                    checkMove(player, fruits);
+                    movePlayer(player);
                 }
             }
-
+            newFruitTimer += 1;
+                console.log(newFruitTimer);
+            if (newFruitTimer >= 100) {
+                newFruit(fruits, squareFieldSize);
+                newFruitTimer = 0;
+            }
             requestAnimationFrame(main);
         };
 
