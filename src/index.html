@@ -27,7 +27,7 @@ body { background: black; color: white; font-family: sans-serif; }
                 }
             }
         }
-        function newPlayer(x, y, velocity, tailLen, controls) {
+        function newPlayer(x, y, velocity, tailLen, controls, colors) {
             const tail = [];
             for (var i = 0; i < tailLen; i++) {
                 tail[i] = {x: x, y: y};
@@ -39,6 +39,7 @@ body { background: black; color: white; font-family: sans-serif; }
                 d: 0,
                 t: tail,
                 c: controls,
+                cc: colors
             };
             return p;
         }
@@ -69,14 +70,26 @@ body { background: black; color: white; font-family: sans-serif; }
                     fruits.splice(i, 1);
                 }
             }
+            for (var i = 0; i < players.length; i++) {
+                var opponent = players[i];
+                if (p != opponent) {
+                    for (var j = 0; j < opponent.t.length; j++) {
+                        if (opponent.t[j].x == p.x && opponent.t[j].y == p.y) {
+                            console.log("GAME OVER");
+                            running = false;
+                            cancelAnimationFrame(window.requestAnimationFrame());
+                        }
+                    }
+                }
+            }
         }
         function drawPlayer(canvas, p, squareSize) {
-            canvas.fillStyle = "rgb(0 120 0)";
+            canvas.fillStyle = p.cc.tail;
 
             for (var i = 0; i < p.t.length; i++) {
                 canvas.fillRect(p.t[i].x * squareSize, p.t[i].y * squareSize, squareSize, squareSize);
             }
-            canvas.fillStyle = "rgb(0 200 0)";
+            canvas.fillStyle = p.cc.head;
             canvas.fillRect(p.x * squareSize, p.y * squareSize, squareSize, squareSize);
         }
         function newFruit(fruits, fieldSideSize) {
@@ -91,8 +104,8 @@ body { background: black; color: white; font-family: sans-serif; }
         const squareFieldSize = canvasSize / squareSize;
         let field = playingFieldInit(squareFieldSize , squareFieldSize);
         let players = [];
-        players.push(newPlayer(10, 10, 0.1, 10, ["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"]));
-        players.push(newPlayer(10, 10, 0.1, 10, ["w", "d", "s", "a"]));
+        players.push(newPlayer(30, 50, 0.1, 10, ["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"], {tail: "rgb(0 120 0)", head: "rgb(0 200 0)"}));
+        players.push(newPlayer(10, 50, 0.1, 10, ["w", "d", "s", "a"], {tail: "rgb(0 0 120)", head: "rgb(0 0 200)"}));
         /*
         for (var i = 0; i < 3; i++) {
             players.push(newPlayer(i*10, 10, 0.1, 10));
@@ -108,7 +121,6 @@ body { background: black; color: white; font-family: sans-serif; }
             for (var i = 0; i < players.length; i++) {
                 var player = players[i];
 
-                console.log("controls ", player.c.length);
                 for (var j = 0; j < player.c.length; j++) {
                     if (event.key == player.c[j]) {
                         player.d = j;
@@ -137,7 +149,6 @@ body { background: black; color: white; font-family: sans-serif; }
                         player.d = 3;
                         break;
                 }
-                console.log(player.d);
             */
             }
         });
@@ -159,6 +170,8 @@ body { background: black; color: white; font-family: sans-serif; }
             }
         }
 
+        let running = true;
+        console.log("runnnig");
         let startTime;
         let time;
         let newFruitTimer = 0;
@@ -178,14 +191,14 @@ body { background: black; color: white; font-family: sans-serif; }
                 }
             }
             newFruitTimer += 1;
-                console.log(newFruitTimer);
-            if (newFruitTimer >= 100) {
+            if (newFruitTimer >= 30) {
                 newFruit(fruits, squareFieldSize);
                 newFruitTimer = 0;
             }
             requestAnimationFrame(main);
         };
 
-        requestAnimationFrame(main);
-
+        if (running == true) {
+            requestAnimationFrame(main);
+        } 
     </script>
