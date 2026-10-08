@@ -50,8 +50,8 @@ div {text-align: center;}
                 tail[i] = {x: x, y: y};
             }
             const p = {
-                x: x,
-                y: y,
+                x: Math.floor(x),
+                y: Math.floor(y),
                 v: velocity,
                 d: 0,
                 t: tail,
@@ -92,6 +92,14 @@ div {text-align: center;}
             for (var i = 0; i < fruits.length; i++) {
                 if (fruits[i].x == p.x && fruits[i].y == p.y) {
                     console.log("YUM");
+                    p.t.push({x: p.x, y: p.y});
+                    p.t.push({x: p.x, y: p.y});
+                    p.t.push({x: p.x, y: p.y});
+                    p.t.push({x: p.x, y: p.y});
+                    p.t.push({x: p.x, y: p.y});
+                    p.t.push({x: p.x, y: p.y});
+                    p.t.push({x: p.x, y: p.y});
+                    p.t.push({x: p.x, y: p.y});
                     p.t.push({x: p.x, y: p.y});
                     p.t.push({x: p.x, y: p.y});
                     p.t.push({x: p.x, y: p.y});
@@ -162,10 +170,10 @@ div {text-align: center;}
             canvas.fillStyle = "rgb(0 0 0)";
             canvas.fillRect(0, 0, 500, 500);
             drawField(canvas, field, squareSize);
+            drawFruit(canvas, fruits, squareSize);
             for (var i = 0; i < players.length; i++) {
                 drawPlayer(ctx, players[i], squareSize);
             }
-            drawFruit(canvas, fruits, squareSize);
         }
         function drawFruit(canvas, fruit, squareSize) {
             for (var i = 0; i < fruit.length; i++) {
@@ -178,7 +186,6 @@ div {text-align: center;}
 
 
 
-
         let playingFieldSize = 50;
         var canvasSize = 500;
         var squareSize = canvasSize / playingFieldSize;
@@ -186,11 +193,21 @@ div {text-align: center;}
         let wrapAround = false;
         let field = playingFieldInit(squareFieldSize , squareFieldSize);
         let players = [];
-        players.push(newPlayer(Math.floor(playingFieldSize / 4), Math.floor(playingFieldSize * .8), 0.1, 10, ["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"], {tail: "rgb(0 120 0)", head: "rgb(0 200 0)"}));
-        //players.push(newPlayer(playingFieldSize / 4 * 3, playingFieldSize * .8, 0.1, 10, ["w", "d", "s", "a"], {tail: "rgb(0 0 120)", head: "rgb(0 0 200)"}));
+        let colors = []
+        colors.push( {
+            red: ["rgb(120 0 0)", "rgb(200 0 0)"],
+            blue: ["rgb(0 0 120)", "rgb(0 0 200)"],
+            green: ["rgb(0 120 0)", "rgb(0 200 0)"],
+        });
+        //players.push(Math.floor(playingFieldSize / 4), Math.floor(playingFieldSize * .8), length, controls, {head: colors[0], tail: colors[1]});
+        /*
+        newPlayer(0.1, 5, ["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"], colors.red);
+        newPlayer(0.1, 5, ["w", "a", "s", "d"], colors.red);
+        */
+        players.push(newPlayer(Math.floor(playingFieldSize / 4 * 3), Math.floor(playingFieldSize * .8), 0.1, 10, ["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"], {tail: "rgb(0 120 0)", head: "rgb(0 200 0)"}));
+        players.push(newPlayer(playingFieldSize / 4, playingFieldSize * .8, 0.1, 10, ["w", "d", "s", "a"], {tail: "rgb(0 0 120)", head: "rgb(0 0 200)"}));
         let opponent = newPlayer(30, 30, 0.1, 10);
         let fruits = [];
-
         let startTime;
         let time;
         let newFruitTimer = 0;
