@@ -1,17 +1,16 @@
 <body>
     <style>
-* {text-align: center}
+* {text-align: center}
 body { background: black; color: white; font-family: sans-serif; }
 canvas {height: 97vh; aspect-ratio: 1 / 1; text-align: center;}
 div {text-align: center;}
-    </style>
 
+
+</style>
+
+    <h3 hidden id="endText"></h3>
     <div id=startPage>
-        <button id=startButton>I'm ready!</button>
-        <details>
-            <summary>Details</summary>
-            Two players
-        </details>
+        <button autofocus id=startButton>I'm ready!</button>
     </div>
 
 
@@ -44,7 +43,7 @@ div {text-align: center;}
                 }
             }
         }
-        function newPlayer(x, y, velocity, tailLen, controls, colors) {
+        function newPlayer(x, y, velocity, tailLen, controls, colors, name) {
             const tail = [];
             for (var i = 0; i < tailLen; i++) {
                 tail[i] = {x: x, y: y};
@@ -59,6 +58,7 @@ div {text-align: center;}
                 cc: colors,
                 m: false, //not moved
                 k: false, //turned this turn
+                q: name,
             };
             return p;
         }
@@ -87,11 +87,10 @@ div {text-align: center;}
         }
         function checkMove(p, fruits) {
             if (p.x < 0 || p.y < 0 || p.x > playingFieldSize || p.y > playingFieldSize) {
-                endGame("out of bounds");
+                endGame(`${p.q} is out of bounds`);
             }
-            for (var i = 0; i < fruits.length; i++) {
-                if (fruits[i].x == p.x && fruits[i].y == p.y) {
-                    console.log("YUM");
+                for (var i = 0; i < fruits.length; i++) {
+                    if (fruits[i].x == p.x && fruits[i].y == p.y) {
                     p.t.push({x: p.x, y: p.y});
                     p.t.push({x: p.x, y: p.y});
                     p.t.push({x: p.x, y: p.y});
@@ -111,7 +110,7 @@ div {text-align: center;}
                 for (var j = 0; j < opponent.t.length; j++) {
                     if (opponent.t[j].m == true) { // make suer the segment hasnt been just made
                         if (opponent.t[j].x == p.x && opponent.t[j].y == p.y) {
-                            endGame("Game OVer");
+                            endGame(`${p.q} got slithered, ${opponent.q} won`);
                         }
                     }
                 }
@@ -131,6 +130,9 @@ div {text-align: center;}
             //console.log(fruits[fruits.length - 1].x, fruits[fruits.length - 1].y);
         }
         function endGame(text){
+            var h4 = document.getElementById("endText");
+            h4.textContent = `Game Over: ${text}`;
+            h4.hidden = false;
             console.log(text);
             cancelAnimationFrame(window.requestAnimationFrame());
 
@@ -195,7 +197,7 @@ div {text-align: center;}
         let players = [];
         let colors = []
         colors.push( {
-            red: ["rgb(120 0 0)", "rgb(200 0 0)"],
+            red: ["rgb(120 0 0)", "rgb(200 0 0)",],
             blue: ["rgb(0 0 120)", "rgb(0 0 200)"],
             green: ["rgb(0 120 0)", "rgb(0 200 0)"],
         });
@@ -204,8 +206,8 @@ div {text-align: center;}
         newPlayer(0.1, 5, ["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"], colors.red);
         newPlayer(0.1, 5, ["w", "a", "s", "d"], colors.red);
         */
-        players.push(newPlayer(Math.floor(playingFieldSize / 4 * 3), Math.floor(playingFieldSize * .8), 0.1, 10, ["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"], {tail: "rgb(0 120 0)", head: "rgb(0 200 0)"}));
-        players.push(newPlayer(playingFieldSize / 4, playingFieldSize * .8, 0.1, 10, ["w", "d", "s", "a"], {tail: "rgb(0 0 120)", head: "rgb(0 0 200)"}));
+        players.push(newPlayer(Math.floor(playingFieldSize / 4 * 3), Math.floor(playingFieldSize * .8), 0.1, 10, ["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"], {tail: "rgb(0 120 0)", head: "rgb(0 200 0)"}, "green"));
+        players.push(newPlayer(playingFieldSize / 4, playingFieldSize * .8, 0.1, 10, ["w", "d", "s", "a"], {tail: "rgb(0 0 120)", head: "rgb(0 0 200)"}, "blue"));
         let opponent = newPlayer(30, 30, 0.1, 10);
         let fruits = [];
         let startTime;
