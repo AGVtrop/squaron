@@ -1,9 +1,26 @@
 <body>
     <style>
+* {text-align: center}
 body { background: black; color: white; font-family: sans-serif; }
+canvas {height: 97vh; aspect-ratio: 1 / 1; text-align: center;}
+div {text-align: center;}
     </style>
-    <canvas id=canvas height=500 width=500 style="border: 2px solid white">
 
+    <div id=startPage>
+        <button id=startButton>I'm ready!</button>
+        <details>
+            <summary>Details</summary>
+            Two players
+        </details>
+    </div>
+
+
+
+
+
+
+
+    <canvas id=canvas height=500 width=500 style="border: 2px solid white">
     </canvas>
     <script>
         function getRandomInt(max) {
@@ -39,7 +56,9 @@ body { background: black; color: white; font-family: sans-serif; }
                 d: 0,
                 t: tail,
                 c: controls,
-                cc: colors
+                cc: colors,
+                m: false, //not moved
+                k: false, //turned this turn
             };
             return p;
         }
@@ -58,26 +77,33 @@ body { background: black; color: white; font-family: sans-serif; }
                     p.x -= 1;
                     break;
             }
+            p.t[0].m = true;
             p.t.push(p.t.shift()); //move last tail square to first
+            p.t[0].m = false;
             p.t[0].x = p.x;
             p.t[0].y = p.y;
+            p.k = false;
 
         }
         function checkMove(p, fruits) {
+            if (p.x < 0 || p.y < 0 || p.x > playingFieldSize || p.y > playingFieldSize) {
+                endGame("out of bounds");
+            }
             for (var i = 0; i < fruits.length; i++) {
                 if (fruits[i].x == p.x && fruits[i].y == p.y) {
+                    console.log("YUM");
+                    p.t.push({x: p.x, y: p.y});
+                    p.t.push({x: p.x, y: p.y});
                     p.t.push({x: p.x, y: p.y});
                     fruits.splice(i, 1);
                 }
             }
             for (var i = 0; i < players.length; i++) {
                 var opponent = players[i];
-                if (p != opponent) {
-                    for (var j = 0; j < opponent.t.length; j++) {
+                for (var j = 0; j < opponent.t.length; j++) {
+                    if (opponent.t[j].m == true) { // make suer the segment hasnt been just made
                         if (opponent.t[j].x == p.x && opponent.t[j].y == p.y) {
-                            console.log("GAME OVER");
-                            running = false;
-                            cancelAnimationFrame(window.requestAnimationFrame());
+                            endGame("Game OVer");
                         }
                     }
                 }
@@ -94,62 +120,41 @@ body { background: black; color: white; font-family: sans-serif; }
         }
         function newFruit(fruits, fieldSideSize) {
             fruits.push({x:getRandomInt(fieldSideSize), y:getRandomInt(fieldSideSize)});
+            //console.log(fruits[fruits.length - 1].x, fruits[fruits.length - 1].y);
         }
+        function endGame(text){
+            console.log(text);
+            cancelAnimationFrame(window.requestAnimationFrame());
+
+        }
+
 
         const canvas = document.getElementById("canvas");
         const ctx = canvas.getContext("2d");
+        canvas.hidden = true;
 
-        const canvasSize = 500;
-        const squareSize = 10;
-        const squareFieldSize = canvasSize / squareSize;
-        let field = playingFieldInit(squareFieldSize , squareFieldSize);
-        let players = [];
-        players.push(newPlayer(30, 50, 0.1, 10, ["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"], {tail: "rgb(0 120 0)", head: "rgb(0 200 0)"}));
-        players.push(newPlayer(10, 50, 0.1, 10, ["w", "d", "s", "a"], {tail: "rgb(0 0 120)", head: "rgb(0 0 200)"}));
-        /*
-        for (var i = 0; i < 3; i++) {
-            players.push(newPlayer(i*10, 10, 0.1, 10));
-        }
-        */
-        //let player = newPlayer(10, 10, 0.1, 10);
-        let opponent = newPlayer(30, 30, 0.1, 10);
-        let fruits = [];
-        newFruit(fruits, squareFieldSize);
+
+        const startButton = document.getElementById("startButton");
+        startButton.addEventListener("click", (event) => {
+            var startPage = document.getElementById("startPage");
+            startPage.hidden = true;
+            canvas.hidden = false;
+            requestAnimationFrame(main);
+        });
 
         document.addEventListener("keydown", function(event) {
-            
+
             for (var i = 0; i < players.length; i++) {
                 var player = players[i];
 
                 for (var j = 0; j < player.c.length; j++) {
-                    if (event.key == player.c[j]) {
-                        player.d = j;
+                    if (event.key == player.c[j] && player.k == false) {
+                        if ((j - 2 + 4) % 4 != player.d) { // make sure the snake doesnt make an istant u turn
+                            player.d = j;
+                            player.k = true;
+                        }
                     }
                 }
-                /*
-                switch(event.key) {
-                    case "ArrowUp":
-                    case "w":
-                    case "W":
-                        player.d = 0;
-                        break;
-                    case "ArrowRight":
-                    case "d":
-                    case "D":
-                        player.d = 1;
-                        break;
-                    case "ArrowDown":
-                    case "s":
-                    case "S":
-                        player.d = 2;
-                        break;
-                    case "ArrowLeft":
-                    case "a":
-                    case "A":
-                        player.d = 3;
-                        break;
-                }
-            */
             }
         });
         function clear(canvas, field, squareSize) {
@@ -164,17 +169,32 @@ body { background: black; color: white; font-family: sans-serif; }
         }
         function drawFruit(canvas, fruit, squareSize) {
             for (var i = 0; i < fruit.length; i++) {
+                //console.log(fruit[i]);
                 canvas.fillStyle = "rgb(100 0 100)";
                 canvas.fillRect(fruit[i].x * squareSize, fruit[i].y * squareSize, squareSize, squareSize);
 
             }
         }
 
-        let running = true;
-        console.log("runnnig");
+
+
+
+        let playingFieldSize = 50;
+        var canvasSize = 500;
+        var squareSize = canvasSize / playingFieldSize;
+        var squareFieldSize = canvasSize / squareSize;
+        let wrapAround = false;
+        let field = playingFieldInit(squareFieldSize , squareFieldSize);
+        let players = [];
+        players.push(newPlayer(Math.floor(playingFieldSize / 4), Math.floor(playingFieldSize * .8), 0.1, 10, ["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"], {tail: "rgb(0 120 0)", head: "rgb(0 200 0)"}));
+        //players.push(newPlayer(playingFieldSize / 4 * 3, playingFieldSize * .8, 0.1, 10, ["w", "d", "s", "a"], {tail: "rgb(0 0 120)", head: "rgb(0 0 200)"}));
+        let opponent = newPlayer(30, 30, 0.1, 10);
+        let fruits = [];
+
         let startTime;
         let time;
         let newFruitTimer = 0;
+
         function main(callTime) {
             startTime = startTime || callTime;
             clear(ctx, field, squareSize);
@@ -198,7 +218,10 @@ body { background: black; color: white; font-family: sans-serif; }
             requestAnimationFrame(main);
         };
 
-        if (running == true) {
-            requestAnimationFrame(main);
-        } 
+
+
+
+
+
+
     </script>
