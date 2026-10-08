@@ -2,15 +2,22 @@
     <style>
 * {text-align: center}
 body { background: black; color: white; font-family: sans-serif; }
-canvas {height: 97vh; aspect-ratio: 1 / 1; text-align: center;}
-div {text-align: center;}
+canvas {height: 97vh; aspect-ratio: 1 / 1;}
+div {text-align: center; padding-top: 25%}
 
 
 </style>
 
     <h3 hidden id="endText"></h3>
     <div id=startPage>
-        <button autofocus id=startButton>I'm ready!</button>
+        <button autofocus id=startButton>Start Game!</button>
+        <details style="padding-top: 1%">
+            <summary>Game info</summary>
+            <p>Snake but multiplayer :D</p>
+            <hr>
+            <p>Player 1: Arrow keys</p>
+            <p>Player 2: WASD</p>
+        </details>
     </div>
 
 
@@ -87,21 +94,13 @@ div {text-align: center;}
         }
         function checkMove(p, fruits) {
             if (p.x < 0 || p.y < 0 || p.x > playingFieldSize || p.y > playingFieldSize) {
-                endGame(`${p.q} is out of bounds`);
+                endGame(`${p.q} hit the wall D:`);
             }
-                for (var i = 0; i < fruits.length; i++) {
-                    if (fruits[i].x == p.x && fruits[i].y == p.y) {
-                    p.t.push({x: p.x, y: p.y});
-                    p.t.push({x: p.x, y: p.y});
-                    p.t.push({x: p.x, y: p.y});
-                    p.t.push({x: p.x, y: p.y});
-                    p.t.push({x: p.x, y: p.y});
-                    p.t.push({x: p.x, y: p.y});
-                    p.t.push({x: p.x, y: p.y});
-                    p.t.push({x: p.x, y: p.y});
-                    p.t.push({x: p.x, y: p.y});
-                    p.t.push({x: p.x, y: p.y});
-                    p.t.push({x: p.x, y: p.y});
+            for (var i = 0; i < fruits.length; i++) {
+                if (fruits[i].x == p.x && fruits[i].y == p.y) {
+                    for (var j = 0; j < 5; j++) {
+                        p.t.push({x: p.x, y: p.y});
+                    }
                     fruits.splice(i, 1);
                 }
             }
@@ -127,13 +126,11 @@ div {text-align: center;}
         }
         function newFruit(fruits, fieldSideSize) {
             fruits.push({x:getRandomInt(fieldSideSize), y:getRandomInt(fieldSideSize)});
-            //console.log(fruits[fruits.length - 1].x, fruits[fruits.length - 1].y);
         }
         function endGame(text){
             var h4 = document.getElementById("endText");
-            h4.textContent = `Game Over: ${text}`;
+            h4.textContent = `Game Over: ${text}  Ctrl + R to restart`;
             h4.hidden = false;
-            console.log(text);
             cancelAnimationFrame(window.requestAnimationFrame());
 
         }
@@ -179,7 +176,6 @@ div {text-align: center;}
         }
         function drawFruit(canvas, fruit, squareSize) {
             for (var i = 0; i < fruit.length; i++) {
-                //console.log(fruit[i]);
                 canvas.fillStyle = "rgb(100 0 100)";
                 canvas.fillRect(fruit[i].x * squareSize, fruit[i].y * squareSize, squareSize, squareSize);
 
@@ -192,23 +188,10 @@ div {text-align: center;}
         var canvasSize = 500;
         var squareSize = canvasSize / playingFieldSize;
         var squareFieldSize = canvasSize / squareSize;
-        let wrapAround = false;
         let field = playingFieldInit(squareFieldSize , squareFieldSize);
         let players = [];
-        let colors = []
-        colors.push( {
-            red: ["rgb(120 0 0)", "rgb(200 0 0)",],
-            blue: ["rgb(0 0 120)", "rgb(0 0 200)"],
-            green: ["rgb(0 120 0)", "rgb(0 200 0)"],
-        });
-        //players.push(Math.floor(playingFieldSize / 4), Math.floor(playingFieldSize * .8), length, controls, {head: colors[0], tail: colors[1]});
-        /*
-        newPlayer(0.1, 5, ["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"], colors.red);
-        newPlayer(0.1, 5, ["w", "a", "s", "d"], colors.red);
-        */
-        players.push(newPlayer(Math.floor(playingFieldSize / 4 * 3), Math.floor(playingFieldSize * .8), 0.1, 10, ["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"], {tail: "rgb(0 120 0)", head: "rgb(0 200 0)"}, "green"));
-        players.push(newPlayer(playingFieldSize / 4, playingFieldSize * .8, 0.1, 10, ["w", "d", "s", "a"], {tail: "rgb(0 0 120)", head: "rgb(0 0 200)"}, "blue"));
-        let opponent = newPlayer(30, 30, 0.1, 10);
+        players.push(newPlayer(Math.floor(playingFieldSize / 4 * 3), Math.floor(playingFieldSize * .8), 0.1, 6, ["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"], {tail: "rgb(0 120 0)", head: "rgb(0 200 0)"}, "green"));
+        players.push(newPlayer(playingFieldSize / 4, playingFieldSize * .8, 0.1, 6, ["w", "d", "s", "a"], {tail: "rgb(0 0 120)", head: "rgb(0 0 200)"}, "blue"));
         let fruits = [];
         let startTime;
         let time;
